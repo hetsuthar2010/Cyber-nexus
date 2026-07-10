@@ -1,0 +1,2421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>CYBER//NEXUS — Hardware Arsenal</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+
+    :root {
+      --green: #00ff88;
+      --cyan: #00eaff;
+      --dark: #020705;
+      --panel: rgba(4, 18, 14, 0.72);
+      --border: rgba(0, 255, 136, 0.18);
+      --text: #d9fff0;
+      --muted: #75958a;
+      --danger: #ff3b6b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+
+      background:
+        radial-gradient(circle at 50% 10%, rgba(0,255,136,.08), transparent 30%),
+        #020705;
+
+      color: var(--text);
+
+      font-family: "Space Grotesk", sans-serif;
+
+      overflow-x: hidden;
+
+      cursor: crosshair;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    ::selection {
+      background: var(--green);
+      color: #00160c;
+    }
+
+
+    /* ======================================================
+       BACKGROUND
+    ====================================================== */
+
+    #three-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1000;
+      opacity: .035;
+
+      background-image:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='.7'/%3E%3C/svg%3E");
+    }
+
+    .cursor-glow {
+      position: fixed;
+      width: 380px;
+      height: 380px;
+
+      border-radius: 50%;
+
+      pointer-events: none;
+
+      z-index: 2;
+
+      transform: translate(-50%, -50%);
+
+      background:
+        radial-gradient(
+          circle,
+          rgba(0,255,136,.09),
+          rgba(0,255,136,.02) 35%,
+          transparent 70%
+        );
+    }
+
+
+    /* ======================================================
+       NAVIGATION
+    ====================================================== */
+
+    header {
+      position: fixed;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+
+      height: 82px;
+
+      padding: 0 6%;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      border-bottom: 1px solid rgba(0,255,136,.1);
+
+      background: rgba(2,7,5,.65);
+
+      backdrop-filter: blur(20px);
+
+      z-index: 100;
+    }
+
+    .logo {
+      color: white;
+
+      text-decoration: none;
+
+      font-family: "JetBrains Mono", monospace;
+
+      font-weight: 700;
+
+      font-size: 20px;
+
+      letter-spacing: -1px;
+    }
+
+    .logo span {
+      color: var(--green);
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+
+    nav a {
+      color: var(--muted);
+
+      text-decoration: none;
+
+      font-family: "JetBrains Mono", monospace;
+
+      font-size: 11px;
+
+      letter-spacing: 1px;
+
+      transition: .3s;
+    }
+
+    nav a:hover,
+    nav a.active {
+      color: var(--green);
+
+      text-shadow: 0 0 15px rgba(0,255,136,.5);
+    }
+
+
+    /* CART BUTTON */
+
+    .cart-button {
+      position: relative;
+
+      border: 1px solid var(--green);
+
+      background: rgba(0,255,136,.06);
+
+      color: var(--green);
+
+      padding: 12px 17px;
+
+      cursor: pointer;
+
+      font-family: "JetBrains Mono", monospace;
+
+      font-size: 11px;
+
+      transition: .3s;
+    }
+
+    .cart-button:hover {
+      background: var(--green);
+      color: #00160c;
+      box-shadow: 0 0 30px rgba(0,255,136,.25);
+    }
+
+    #cartCount {
+      display: inline-flex;
+
+      align-items: center;
+      justify-content: center;
+
+      min-width: 21px;
+      height: 21px;
+
+      margin-left: 8px;
+
+      padding: 0 5px;
+
+      background: var(--green);
+      color: #00160c;
+
+      font-weight: bold;
+    }
+
+
+    /* ======================================================
+       MAIN
+    ====================================================== */
+
+    main {
+      position: relative;
+      z-index: 5;
+    }
+
+
+    /* ======================================================
+       HERO
+    ====================================================== */
+
+    .hero {
+      min-height: 80vh;
+
+      padding: 150px 7% 70px;
+
+      display: grid;
+
+      grid-template-columns: 1.2fr .8fr;
+
+      align-items: center;
+
+      gap: 50px;
+
+      perspective: 1200px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+
+      border: 1px solid var(--border);
+
+      padding: 9px 14px;
+
+      margin-bottom: 25px;
+
+      background: rgba(0,255,136,.035);
+
+      color: var(--green);
+
+      font-family: "JetBrains Mono", monospace;
+
+      font-size: 11px;
+
+      letter-spacing: 2px;
+    }
+
+    h1 {
+      max-width: 950px;
+
+      font-size: clamp(60px, 8vw, 125px);
+
+      line-height: .84;
+
+      letter-spacing: -7px;
+
+      text-transform: uppercase;
+    }
+
+    .outline {
+      color: transparent;
+
+      -webkit-text-stroke:
+        1px rgba(0,255,136,.7);
+
+      filter:
+        drop-shadow(0 0 20px rgba(0,255,136,.18));
+    }
+
+    .hero-description {
+      max-width: 650px;
+
+      margin-top: 35px;
+
+      color: var(--muted);
+
+      font-size: 16px;
+
+      line-height: 1.8;
+    }
+
+
+    /* HERO ORBIT */
+
+    .hardware-orbit {
+      width: 380px;
+      height: 380px;
+
+      position: relative;
+
+      margin: auto;
+
+      transform-style: preserve-3d;
+
+      animation: floatOrbit 5s ease-in-out infinite;
+    }
+
+    @keyframes floatOrbit {
+      50% {
+        transform:
+          translateY(-18px)
+          rotateX(5deg);
+      }
+    }
+
+    .orbital-ring {
+      position: absolute;
+
+      inset: 20px;
+
+      border:
+        1px solid rgba(0,255,136,.35);
+
+      border-radius: 50%;
+
+      transform:
+        rotateX(68deg)
+        rotateZ(0);
+
+      animation:
+        ringRotate 9s linear infinite;
+
+      box-shadow:
+        0 0 40px rgba(0,255,136,.05);
+    }
+
+    .orbital-ring:nth-child(2) {
+      inset: 65px;
+
+      border-color:
+        rgba(0,234,255,.25);
+
+      transform:
+        rotateY(65deg);
+
+      animation-duration: 13s;
+
+      animation-direction: reverse;
+    }
+
+    @keyframes ringRotate {
+      to {
+        transform:
+          rotateX(68deg)
+          rotateZ(360deg);
+      }
+    }
+
+    .core-device {
+      position: absolute;
+
+      width: 150px;
+      height: 220px;
+
+      left: 115px;
+      top: 80px;
+
+      border:
+        1px solid rgba(0,255,136,.8);
+
+      border-radius: 18px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(0,255,136,.12),
+          rgba(0,255,136,.015)
+        );
+
+      backdrop-filter: blur(20px);
+
+      box-shadow:
+        inset 0 0 30px rgba(0,255,136,.08),
+        0 0 50px rgba(0,255,136,.12);
+
+      transform:
+        rotateY(-20deg)
+        rotateX(7deg);
+
+      animation:
+        deviceRotate 7s ease-in-out infinite;
+    }
+
+    @keyframes deviceRotate {
+      50% {
+        transform:
+          rotateY(20deg)
+          rotateX(-5deg);
+      }
+    }
+
+    .device-screen {
+      margin: 20px;
+
+      height: 80px;
+
+      border:
+        1px solid rgba(0,255,136,.35);
+
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(0,255,136,.08) 0,
+          rgba(0,255,136,.08) 1px,
+          transparent 1px,
+          transparent 8px
+        );
+
+      position: relative;
+      overflow: hidden;
+    }
+
+    .device-screen::after {
+      content: "";
+
+      position: absolute;
+
+      width: 100%;
+      height: 2px;
+
+      background: var(--green);
+
+      box-shadow:
+        0 0 10px var(--green);
+
+      animation:
+        screenScan 2s linear infinite;
+    }
+
+    @keyframes screenScan {
+      from {
+        top: 0;
+      }
+
+      to {
+        top: 100%;
+      }
+    }
+
+    .device-buttons {
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, 12px);
+
+      gap: 10px;
+
+      justify-content: center;
+
+      margin-top: 30px;
+    }
+
+    .device-buttons span {
+      width: 12px;
+      height: 12px;
+
+      border:
+        1px solid var(--green);
+
+      border-radius: 50%;
+    }
+
+
+    /* ======================================================
+       STORE SECTION
+    ====================================================== */
+
+    .store {
+      padding: 100px 7% 150px;
+    }
+
+    .section-tag {
+      color: var(--green);
+
+      font-family:
+        "JetBrains Mono", monospace;
+
+      font-size: 11px;
+
+      letter-spacing: 2px;
+    }
+
+    .section-title {
+      max-width: 900px;
+
+      margin-top: 15px;
+
+      font-size:
+        clamp(45px, 6vw, 85px);
+
+      line-height: .95;
+
+      letter-spacing: -4px;
+    }
+
+
+    /* FILTER BAR */
+
+    .toolbar {
+      margin-top: 45px;
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      gap: 20px;
+
+      flex-wrap: wrap;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filter-btn {
+      padding: 10px 15px;
+
+      border: 1px solid var(--border);
+
+      background: rgba(0,255,136,.025);
+
+      color: var(--muted);
+
+      font-family:
+        "JetBrains Mono", monospace;
+
+      font-size: 10px;
+
+      cursor: pointer;
+
+      transition: .3s;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      border-color: var(--green);
+
+      color: var(--green);
+
+      background:
+        rgba(0,255,136,.08);
+    }
+
+    .search-box {
+      width: min(320px, 100%);
+
+      padding: 12px 15px;
+
+      border: 1px solid var(--border);
+
+      outline: none;
+
+      background: rgba(0,0,0,.35);
+
+      color: white;
+
+      font-family:
+        "JetBrains Mono", monospace;
+    }
+
+    .search-box:focus {
+      border-color: var(--green);
+
+      box-shadow:
+        0 0 20px rgba(0,255,136,.08);
+    }
+
+
+    /* ======================================================
+       PRODUCT GRID
+    ====================================================== */
+
+    .product-grid {
+      margin-top: 45px;
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+      gap: 20px;
+
+      perspective: 1400px;
+    }
+
+    .product-card {
+      min-height: 570px;
+
+      position: relative;
+
+      overflow: hidden;
+
+      padding: 24px;
+
+      display: flex;
+
+      flex-direction: column;
+
+      border: 1px solid var(--border);
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(0,255,136,.05),
+          transparent 45%
+        ),
+        rgba(3,13,10,.72);
+
+      backdrop-filter: blur(18px);
+
+      transform-style: preserve-3d;
+
+      transition:
+        transform .18s ease,
+        border-color .3s,
+        box-shadow .3s;
+    }
+
+    .product-card:hover {
+      border-color:
+        rgba(0,255,136,.55);
+
+      box-shadow:
+        0 25px 70px rgba(0,0,0,.4),
+        0 0 35px rgba(0,255,136,.05);
+    }
+
+    .product-card::before {
+      content: "";
+
+      position: absolute;
+
+      width: 180px;
+      height: 180px;
+
+      top: -90px;
+      right: -90px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(0,255,136,.12);
+
+      filter: blur(55px);
+    }
+
+
+    /* PRODUCT IMAGE PLACEHOLDER */
+
+    .product-visual {
+      height: 240px;
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      position: relative;
+
+      border:
+        1px solid rgba(0,255,136,.1);
+
+      background:
+        radial-gradient(
+          circle,
+          rgba(0,255,136,.1),
+          transparent 55%
+        ),
+        linear-gradient(
+          rgba(0,255,136,.025),
+          rgba(0,0,0,.1)
+        );
+
+      overflow: hidden;
+    }
+
+    .product-visual::before {
+      content: "";
+
+      position: absolute;
+
+      width: 160%;
+      height: 1px;
+
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          var(--green),
+          transparent
+        );
+
+      opacity: .4;
+
+      animation:
+        productScan 3s linear infinite;
+    }
+
+    @keyframes productScan {
+      from {
+        transform:
+          translateY(-130px);
+      }
+
+      to {
+        transform:
+          translateY(130px);
+      }
+    }
+
+    .device-shape {
+      width: 115px;
+      height: 160px;
+
+      border:
+        1px solid var(--green);
+
+      border-radius: 13px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(0,255,136,.15),
+          rgba(0,255,136,.02)
+        );
+
+      box-shadow:
+        0 0 35px rgba(0,255,136,.12);
+
+      transform:
+        rotateY(-20deg)
+        rotateX(8deg)
+        rotateZ(-3deg);
+
+      transition: .5s;
+
+      position: relative;
+    }
+
+    .product-card:hover .device-shape {
+      transform:
+        rotateY(18deg)
+        rotateX(-5deg)
+        rotateZ(3deg)
+        translateY(-8px);
+    }
+
+    .device-shape.wide {
+      width: 170px;
+      height: 105px;
+    }
+
+    .device-shape.stick {
+      width: 55px;
+      height: 175px;
+    }
+
+    .device-shape.circle-device {
+      width: 145px;
+      height: 145px;
+      border-radius: 50%;
+    }
+
+    .device-shape::before {
+      content: "";
+
+      position: absolute;
+
+      inset: 15px;
+
+      border:
+        1px solid rgba(0,255,136,.3);
+
+      background:
+        repeating-linear-gradient(
+          0deg,
+          transparent 0,
+          transparent 9px,
+          rgba(0,255,136,.08) 10px
+        );
+    }
+
+
+    /* PRODUCT DETAILS */
+
+    .product-top {
+      margin-top: 22px;
+
+      display: flex;
+
+      justify-content: space-between;
+
+      gap: 10px;
+
+      align-items: center;
+    }
+
+    .product-category {
+      color: var(--green);
+
+      font-family:
+        "JetBrains Mono", monospace;
+
+      font-size: 9px;
+
+      letter-spacing: 1px;
+    }
+
+    .stock {
+      color: var(--cyan);
+
+      font-family:
+        "JetBrains Mono", monospace;
+
+      font-size: 9px;
+    }
+
+    .product-card h3 {
+      margin-top: 15px;
+
+      font-size: 25px;
+
+      letter-spacing: -1px;
+    }
+
+    .product-card p {
+      margin-top: 12px;
+
+      color: var(--muted);
+
+      line-height: 1.6;
+
+      font-size: 13px;
+    }
+
+    .product-bottom {
+      margin-top: auto;
+
+      padding-top: 25px;
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      gap: 15px;
+    }
+
+    .price {
+      font-family:
+        "JetBrains Mono", monospace;
+
+      font-size: 22px;
+
+      color: white;
+    }
+
+    .add-cart {
+      padding: 13px 17px;
+
+      border: 1px solid var(--green);
+
+      background: transparent;
+
+      color: var(--green);
+
+      cursor: pointer;
+
+      font-family:
+        "JetBrains Mono", monospace;
+
+      font-size: 10px;
+
+      font-weight: 700;
+
+      transition: .3s;
+    }
+
+    .add-cart:hover {
+      background: var(--green);
+
+      color: #00160c;
+
+      box-shadow:
+        0 0 25px rgba(0,255,136,.3);
+    }
+
+    .add-cart.added {
+      background: var(--green);
+      color: #00160c;
+    }
+
+
+    /* ======================================================
+       CART DRAWER
+    ====================================================== */
+
+    .cart-overlay {
+      position: fixed;
+
+      inset: 0;
+
+      background: rgba(0,0,0,.68);
+
+      backdrop-filter: blur(8px);
+
+      opacity: 0;
+
+      visibility: hidden;
+
+      transition: .35s;
+
+      z-index: 200;
+    }
+
+    .cart-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .cart-drawer {
+      position: fixed;
+
+      top: 0;
+      right: -500px;
+
+      width: min(470px, 100%);
+
+      height: 100vh;
+
+      padding: 30px;
+
+      border-left:
+        1px solid rgba(0,255,136,.3);
+
+      background:
+        rgba(2,10,7,.97);
+
+      backdrop-filter: blur(25px);
+
+      z-index: 300;
+
+      transition:
+        right .5s cubic-bezier(.77,0,.18,1);
+
+      overflow-y: auto;
+    }
+
+    .cart-drawer.open {
+      right: 0;
+    }
+
+    .cart-header {
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      padding-bottom: 25px;
+
+      border-bottom:
+        1px solid var(--border);
+    }
+
+    .cart-header h2 {
+      font-size: 25px;
+    }
+
+    .close-cart {
+      border: none;
+
+      background: transparent;
+
+      color: var(--green);
+
+      font-size: 25px;
+
+      cursor: pointer;
+    }
+
+    #cartItems {
+      padding: 20px 0;
+    }
+
+    .empty-cart {
+      padding: 60px 0;
+
+      text-align: center;
+
+      color: var(--muted);
+
+      font-family:
+        "JetBrains Mono", monospace;
+
+      font-size: 11px;
+
+      line-height: 2;
+    }
+
+    .cart-item {
+      padding: 17px 0;
+
+      display: grid;
+
+      grid-template-columns:
+        1fr auto;
+
+      gap: 15px;
+
+      border-bottom:
+        1px solid rgba(0,255,136,.1);
+    }
+
+    .cart-item h4 {
+      margin-bottom: 7px;
+    }
+
+    .cart-item-price {
+      color: var(--green);
+
+      font-family:
+        "JetBrains Mono", monospace;
+
+      font-size: 12px;
+    }
+
+    .remove-item {
+      border: none;
+
+      background: transparent;
+
+      color: var(--danger);
+
+      cursor: pointer;
+
+      font-family:
+        "JetBrains Mono", monospace;
+
+      font-size: 10px;
+    }
+
+    .cart-total {
+      margin-top: 25px;
+
+      padding: 20px;
+
+      border: 1px solid var(--border);
+
+      display: flex;
+
+      justify-content: space-between;
+
+      font-family:
+        "JetBrains Mono", monospace;
+    }
+
+    .checkout-btn {
+      width: 100%;
+
+      margin-top: 15px;
+
+      padding: 17px;
+
+      border: 1px solid var(--green);
+
+      background: var(--green);
+
+      color: #00160c;
+
+      font-family:
+        "JetBrains Mono", monospace;
+
+      font-weight: bold;
+
+      cursor: pointer;
+
+      transition: .3s;
+    }
+
+    .checkout-btn:hover {
+      box-shadow:
+        0 0 35px rgba(0,255,136,.3);
+    }
+
+
+    /* ======================================================
+       NOTIFICATION
+    ====================================================== */
+
+    .notification {
+      position: fixed;
+
+      left: 50%;
+      bottom: -100px;
+
+      transform:
+        translateX(-50%);
+
+      padding: 15px 22px;
+
+      border: 1px solid var(--green);
+
+      background:
+        rgba(2,15,10,.96);
+
+      color: var(--green);
+
+      font-family:
+        "JetBrains Mono", monospace;
+
+      font-size: 11px;
+
+      z-index: 500;
+
+      transition: .4s;
+    }
+
+    .notification.show {
+      bottom: 30px;
+    }
+
+
+    /* ======================================================
+       FOOTER
+    ====================================================== */
+
+    footer {
+      position: relative;
+
+      z-index: 5;
+
+      padding: 30px 7%;
+
+      border-top:
+        1px solid var(--border);
+
+      display: flex;
+
+      justify-content: space-between;
+
+      color: var(--muted);
+
+      font-family:
+        "JetBrains Mono", monospace;
+
+      font-size: 10px;
+    }
+
+
+    /* ======================================================
+       RESPONSIVE
+    ====================================================== */
+
+    @media (max-width: 1050px) {
+
+      .product-grid {
+        grid-template-columns:
+          repeat(2, 1fr);
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hardware-orbit {
+        transform: scale(.85);
+      }
+
+    }
+
+
+    @media (max-width: 750px) {
+
+      nav {
+        display: none;
+      }
+
+      h1 {
+        font-size: 60px;
+        letter-spacing: -4px;
+      }
+
+      .hero {
+        padding-left: 5%;
+        padding-right: 5%;
+      }
+
+      .store {
+        padding-left: 5%;
+        padding-right: 5%;
+      }
+
+      .product-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        align-items: stretch;
+      }
+
+      .search-box {
+        width: 100%;
+      }
+
+      footer {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+  <div class="noise"></div>
+
+  <div class="cursor-glow"></div>
+
+  <canvas id="three-canvas"></canvas>
+
+
+  <!-- ================= NAVBAR ================= -->
+
+  <header>
+
+    <a href="index.html" class="logo">
+      CYBER<span>//NEXUS</span>
+    </a>
+
+    <nav>
+      <a href="index.html">01_HOME</a>
+      <a href="gadgets.html" class="active">02_ARSENAL</a>
+      <a href="#store">03_HARDWARE</a>
+    </nav>
+
+    <button class="cart-button" onclick="toggleCart()">
+      CART
+      <span id="cartCount">0</span>
+    </button>
+
+  </header>
+
+
+  <main>
+
+
+    <!-- ================= HERO ================= -->
+
+    <section class="hero">
+
+      <div class="hero-content">
+
+        <div class="eyebrow">
+          ● AUTHORIZED HARDWARE RESEARCH LAB
+        </div>
+
+        <h1>
+          CYBER<br>
+          <span class="outline">ARSENAL.</span>
+        </h1>
+
+        <p class="hero-description">
+          Hardware for controlled cybersecurity laboratories,
+          wireless diagnostics, RFID and NFC experimentation,
+          network visibility, protocol analysis and embedded-system
+          research.
+        </p>
+
+      </div>
+
+
+      <div class="hardware-orbit" id="hardwareOrbit">
+
+        <div class="orbital-ring"></div>
+
+        <div class="orbital-ring"></div>
+
+        <div class="core-device">
+
+          <div class="device-screen"></div>
+
+          <div class="device-buttons">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= STORE ================= -->
+
+    <section class="store" id="store">
+
+      <span class="section-tag">
+        // HARDWARE_INVENTORY
+      </span>
+
+      <h2 class="section-title">
+        BUILD YOUR SECURITY LAB.
+      </h2>
+
+
+      <div class="toolbar">
+
+        <div class="filters">
+
+          <button
+            class="filter-btn active"
+            data-filter="all">
+            ALL
+          </button>
+
+          <button
+            class="filter-btn"
+            data-filter="wireless">
+            WIRELESS
+          </button>
+
+          <button
+            class="filter-btn"
+            data-filter="rfid">
+            RFID / NFC
+          </button>
+
+          <button
+            class="filter-btn"
+            data-filter="network">
+            NETWORK
+          </button>
+
+          <button
+            class="filter-btn"
+            data-filter="hardware">
+            HARDWARE
+          </button>
+
+        </div>
+
+
+        <input
+          type="text"
+          class="search-box"
+          id="searchInput"
+          placeholder="SEARCH_HARDWARE..."
+        >
+
+      </div>
+
+
+      <div class="product-grid" id="productGrid">
+
+        <!-- Products injected with JavaScript -->
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ================= CART ================= -->
+
+  <div
+    class="cart-overlay"
+    id="cartOverlay"
+    onclick="toggleCart()">
+  </div>
+
+
+  <aside
+    class="cart-drawer"
+    id="cartDrawer">
+
+    <div class="cart-header">
+
+      <h2>
+        YOUR CART_
+      </h2>
+
+      <button
+        class="close-cart"
+        onclick="toggleCart()">
+        ×
+      </button>
+
+    </div>
+
+
+    <div id="cartItems"></div>
+
+
+    <div class="cart-total">
+
+      <span>
+        TOTAL
+      </span>
+
+      <strong id="cartTotal">
+        ₹0
+      </strong>
+
+    </div>
+
+
+    <a href="checkout.html"><button
+      class="checkout-btn"
+      onclick="checkout()">
+
+      PROCEED TO CHECKOUT_
+
+    </button> </a>
+
+  </aside>
+
+
+  <div
+    class="notification"
+    id="notification">
+
+    DEVICE ADDED TO CART_
+
+  </div>
+
+
+  <footer>
+
+    <span>
+      CYBER//NEXUS © 2026
+    </span>
+
+    <span>
+      AUTHORIZED LAB USE // RESPONSIBLE SECURITY RESEARCH
+    </span>
+
+  </footer>
+
+
+  <!-- THREE JS -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+
+  <!-- GSAP -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+
+  <script>
+
+    /* ======================================================
+       PRODUCT DATABASE
+    ====================================================== */
+
+    const products = [
+
+      {
+        id: 1,
+        name: "Flipper Zero",
+        category: "rfid",
+        categoryLabel: "MULTI-PROTOCOL LAB TOOL",
+        price: 16999,
+        shape: "",
+        description:
+          "Portable hardware exploration platform for controlled NFC, RFID, infrared, GPIO and sub-GHz experimentation."
+      },
+
+      {
+        id: 2,
+        name: "Wi-Fi Analysis Node",
+        category: "wireless",
+        categoryLabel: "WIRELESS DIAGNOSTICS",
+        price: 7499,
+        shape: "wide",
+        description:
+          "Portable wireless laboratory node for spectrum observation, network diagnostics and authorized Wi-Fi security assessment."
+      },
+
+      {
+        id: 3,
+        name: "NFC Research Reader",
+        category: "rfid",
+        categoryLabel: "NFC / SMART CARD LAB",
+        price: 5899,
+        shape: "wide",
+        description:
+          "Desktop research reader designed for controlled NFC tag development, card analysis and access-control laboratory exercises."
+      },
+
+      {
+        id: 4,
+        name: "RF Spectrum Analyzer",
+        category: "wireless",
+        categoryLabel: "PASSIVE RF ANALYSIS",
+        price: 12999,
+        shape: "stick",
+        description:
+          "Passive radio-frequency visualization tool for observing spectrum activity and diagnosing wireless laboratory environments."
+      },
+
+      {
+        id: 5,
+        name: "USB Protocol Analyzer",
+        category: "hardware",
+        categoryLabel: "PROTOCOL DEBUGGING",
+        price: 8499,
+        shape: "wide",
+        description:
+          "Hardware debugging instrument for observing USB communication and diagnosing embedded-system protocol behavior."
+      },
+
+      {
+        id: 6,
+        name: "SDR Receiver Lab Kit",
+        category: "wireless",
+        categoryLabel: "SOFTWARE DEFINED RADIO",
+        price: 6999,
+        shape: "stick",
+        description:
+          "Receive-focused SDR laboratory kit for learning radio fundamentals, spectrum analysis and signal visualization."
+      },
+
+      {
+        id: 7,
+        name: "Network Diagnostic Tap",
+        category: "network",
+        categoryLabel: "PACKET VISIBILITY",
+        price: 11499,
+        shape: "wide",
+        description:
+          "Laboratory network visibility hardware for controlled traffic observation, troubleshooting and defensive packet analysis."
+      },
+
+      {
+        id: 8,
+        name: "GPIO Debug Probe",
+        category: "hardware",
+        categoryLabel: "EMBEDDED SECURITY",
+        price: 4799,
+        shape: "stick",
+        description:
+          "Compact embedded debugging probe for authorized firmware development, board diagnostics and hardware security education."
+      },
+
+      {
+        id: 9,
+        name: "Portable Packet Monitor",
+        category: "network",
+        categoryLabel: "NETWORK MONITORING",
+        price: 9999,
+        shape: "circle-device",
+        description:
+          "Portable defensive monitoring device for laboratory network telemetry, asset discovery and troubleshooting."
+      }
+
+    ];
+
+
+    let cart =
+      JSON.parse(
+        localStorage.getItem("cyberNexusCart")
+      ) || [];
+
+
+    /* ======================================================
+       RENDER PRODUCTS
+    ====================================================== */
+
+    function renderProducts(
+      filter = "all",
+      search = ""
+    ) {
+
+      const grid =
+        document.getElementById("productGrid");
+
+
+      const filtered =
+        products.filter(product => {
+
+          const categoryMatch =
+            filter === "all" ||
+            product.category === filter;
+
+          const searchMatch =
+            product.name
+              .toLowerCase()
+              .includes(search.toLowerCase());
+
+          return categoryMatch && searchMatch;
+
+        });
+
+
+      grid.innerHTML =
+        filtered.map(product => `
+
+          <article
+            class="product-card tilt-product"
+            data-category="${product.category}">
+
+            <div class="product-visual">
+
+              <div
+                class="device-shape ${product.shape}">
+              </div>
+
+            </div>
+
+
+            <div class="product-top">
+
+              <span class="product-category">
+                ${product.categoryLabel}
+              </span>
+
+              <span class="stock">
+                ● IN STOCK
+              </span>
+
+            </div>
+
+
+            <h3>
+              ${product.name}
+            </h3>
+
+
+            <p>
+              ${product.description}
+            </p>
+
+
+            <div class="product-bottom">
+
+              <span class="price">
+                ₹${product.price.toLocaleString("en-IN")}
+              </span>
+
+
+              <button
+                class="add-cart"
+                onclick="addToCart(${product.id}, this)">
+
+                ADD TO CART
+
+              </button>
+
+            </div>
+
+          </article>
+
+        `).join("");
+
+
+      activateTilt();
+
+    }
+
+
+    /* ======================================================
+       ADD TO CART
+    ====================================================== */
+
+    function addToCart(id, button) {
+
+      const product =
+        products.find(item => item.id === id);
+
+
+      const existing =
+        cart.find(item => item.id === id);
+
+
+      if (existing) {
+
+        existing.quantity += 1;
+
+      } else {
+
+        cart.push({
+          ...product,
+          quantity: 1
+        });
+
+      }
+
+
+      saveCart();
+
+      updateCart();
+
+      showNotification(
+        product.name + " ADDED TO CART_"
+      );
+
+
+      button.classList.add("added");
+
+      button.textContent = "ADDED ✓";
+
+
+      setTimeout(() => {
+
+        button.classList.remove("added");
+
+        button.textContent = "ADD TO CART";
+
+      }, 1200);
+
+    }
+
+
+    /* ======================================================
+       REMOVE CART ITEM
+    ====================================================== */
+
+    function removeItem(id) {
+
+      cart =
+        cart.filter(item => item.id !== id);
+
+      saveCart();
+
+      updateCart();
+
+    }
+
+
+    /* ======================================================
+       SAVE CART
+    ====================================================== */
+
+    function saveCart() {
+
+      localStorage.setItem(
+        "cyberNexusCart",
+        JSON.stringify(cart)
+      );
+
+    }
+
+
+    /* ======================================================
+       UPDATE CART
+    ====================================================== */
+
+    function updateCart() {
+
+      const count =
+        cart.reduce(
+          (sum, item) =>
+            sum + item.quantity,
+          0
+        );
+
+
+      document.getElementById("cartCount")
+        .textContent = count;
+
+
+      const cartItems =
+        document.getElementById("cartItems");
+
+
+      if (cart.length === 0) {
+
+        cartItems.innerHTML = `
+
+          <div class="empty-cart">
+
+            CART_EMPTY<br>
+
+            SELECT HARDWARE FROM THE INVENTORY_
+
+          </div>
+
+        `;
+
+      } else {
+
+        cartItems.innerHTML =
+          cart.map(item => `
+
+            <div class="cart-item">
+
+              <div>
+
+                <h4>
+                  ${item.name}
+                </h4>
+
+                <span class="cart-item-price">
+
+                  ₹${item.price.toLocaleString("en-IN")}
+                  ×
+                  ${item.quantity}
+
+                </span>
+
+              </div>
+
+
+              <button
+                class="remove-item"
+                onclick="removeItem(${item.id})">
+
+                REMOVE
+
+              </button>
+
+            </div>
+
+          `).join("");
+
+      }
+
+
+      const total =
+        cart.reduce(
+          (sum, item) =>
+            sum +
+            item.price *
+            item.quantity,
+          0
+        );
+
+
+      document.getElementById("cartTotal")
+        .textContent =
+          "₹" +
+          total.toLocaleString("en-IN");
+
+    }
+
+
+    /* ======================================================
+       CART DRAWER
+    ====================================================== */
+
+    function toggleCart() {
+
+      document
+        .getElementById("cartDrawer")
+        .classList
+        .toggle("open");
+
+
+      document
+        .getElementById("cartOverlay")
+        .classList
+        .toggle("open");
+
+    }
+
+
+    /* ======================================================
+       CHECKOUT
+    ====================================================== */
+
+    function checkout() {
+
+      if (cart.length === 0) {
+
+        showNotification(
+          "CART IS EMPTY_"
+        );
+
+        return;
+
+      }
+
+
+      showNotification(
+        "CHECKOUT MODULE READY_"
+      );
+
+      /*
+        Later connect this to:
+
+        window.location.href = "checkout.html";
+      */
+
+    }
+
+
+    /* ======================================================
+       NOTIFICATION
+    ====================================================== */
+
+    function showNotification(message) {
+
+      const notification =
+        document.getElementById("notification");
+
+
+      notification.textContent =
+        message;
+
+
+      notification
+        .classList
+        .add("show");
+
+
+      setTimeout(() => {
+
+        notification
+          .classList
+          .remove("show");
+
+      }, 2000);
+
+    }
+
+
+    /* ======================================================
+       FILTERS
+    ====================================================== */
+
+    let activeFilter = "all";
+
+
+    document
+      .querySelectorAll(".filter-btn")
+      .forEach(button => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            document
+              .querySelectorAll(".filter-btn")
+              .forEach(btn =>
+                btn.classList.remove("active")
+              );
+
+
+            button
+              .classList
+              .add("active");
+
+
+            activeFilter =
+              button.dataset.filter;
+
+
+            renderProducts(
+              activeFilter,
+              document
+                .getElementById("searchInput")
+                .value
+            );
+
+          }
+        );
+
+      });
+
+
+    document
+      .getElementById("searchInput")
+      .addEventListener(
+        "input",
+        event => {
+
+          renderProducts(
+            activeFilter,
+            event.target.value
+          );
+
+        }
+      );
+
+
+    /* ======================================================
+       CURSOR
+    ====================================================== */
+
+    const cursorGlow =
+      document.querySelector(".cursor-glow");
+
+
+    window.addEventListener(
+      "mousemove",
+      event => {
+
+        gsap.to(
+          cursorGlow,
+          {
+            x: event.clientX,
+            y: event.clientY,
+            duration: .3
+          }
+        );
+
+      }
+    );
+
+
+    /* ======================================================
+       THREE JS BACKGROUND
+    ====================================================== */
+
+    const canvas =
+      document.getElementById("three-canvas");
+
+
+    const scene =
+      new THREE.Scene();
+
+
+    const camera =
+      new THREE.PerspectiveCamera(
+        65,
+        window.innerWidth /
+        window.innerHeight,
+        .1,
+        1000
+      );
+
+
+    camera.position.z = 6;
+
+
+    const renderer =
+      new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true
+      });
+
+
+    renderer.setPixelRatio(
+      Math.min(
+        window.devicePixelRatio,
+        2
+      )
+    );
+
+
+    renderer.setSize(
+      window.innerWidth,
+      window.innerHeight
+    );
+
+
+    /* PARTICLES */
+
+    const particleCount = 800;
+
+
+    const positions =
+      new Float32Array(
+        particleCount * 3
+      );
+
+
+    for (
+      let i = 0;
+      i < particleCount * 3;
+      i += 3
+    ) {
+
+      positions[i] =
+        (Math.random() - .5) * 16;
+
+      positions[i + 1] =
+        (Math.random() - .5) * 10;
+
+      positions[i + 2] =
+        (Math.random() - .5) * 8;
+
+    }
+
+
+    const particleGeometry =
+      new THREE.BufferGeometry();
+
+
+    particleGeometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(
+        positions,
+        3
+      )
+    );
+
+
+    const particleMaterial =
+      new THREE.PointsMaterial({
+
+        color: 0x00ff88,
+
+        size: .018,
+
+        transparent: true,
+
+        opacity: .5
+
+      });
+
+
+    const particles =
+      new THREE.Points(
+        particleGeometry,
+        particleMaterial
+      );
+
+
+    scene.add(particles);
+
+
+    /* GRID */
+
+    const grid =
+      new THREE.GridHelper(
+        30,
+        50,
+        0x00ff88,
+        0x003d24
+      );
+
+
+    grid.position.y = -3;
+
+    grid.material.transparent = true;
+
+    grid.material.opacity = .1;
+
+    scene.add(grid);
+
+
+    /* MOUSE */
+
+    let mouseX = 0;
+    let mouseY = 0;
+
+
+    document.addEventListener(
+      "mousemove",
+      event => {
+
+        mouseX =
+          (
+            event.clientX /
+            window.innerWidth -
+            .5
+          ) * 2;
+
+
+        mouseY =
+          (
+            event.clientY /
+            window.innerHeight -
+            .5
+          ) * 2;
+
+      }
+    );
+
+
+    function animateThree() {
+
+      requestAnimationFrame(
+        animateThree
+      );
+
+
+      particles.rotation.y += .0007;
+
+      particles.rotation.x += .0002;
+
+
+      camera.position.x +=
+        (
+          mouseX * .35 -
+          camera.position.x
+        ) * .02;
+
+
+      camera.position.y +=
+        (
+          -mouseY * .25 -
+          camera.position.y
+        ) * .02;
+
+
+      camera.lookAt(
+        scene.position
+      );
+
+
+      renderer.render(
+        scene,
+        camera
+      );
+
+    }
+
+
+    animateThree();
+
+
+    window.addEventListener(
+      "resize",
+      () => {
+
+        camera.aspect =
+          window.innerWidth /
+          window.innerHeight;
+
+
+        camera.updateProjectionMatrix();
+
+
+        renderer.setSize(
+          window.innerWidth,
+          window.innerHeight
+        );
+
+      }
+    );
+
+
+    /* ======================================================
+       GSAP
+    ====================================================== */
+
+    gsap.registerPlugin(
+      ScrollTrigger
+    );
+
+
+    gsap.timeline()
+
+      .from("header", {
+        y: -80,
+        opacity: 0,
+        duration: .8
+      })
+
+      .from(".eyebrow", {
+        y: 20,
+        opacity: 0,
+        duration: .5
+      })
+
+      .from("h1", {
+        y: 80,
+        opacity: 0,
+        duration: 1,
+        ease: "power4.out"
+      })
+
+      .from(".hero-description", {
+        y: 30,
+        opacity: 0,
+        duration: .6
+      }, "-=.5")
+
+      .from("#hardwareOrbit", {
+        scale: .4,
+        opacity: 0,
+        rotate: 30,
+        duration: 1.3,
+        ease: "expo.out"
+      }, "-=1");
+
+
+    gsap.from(
+      ".section-title",
+      {
+
+        scrollTrigger: {
+          trigger: ".section-title",
+          start: "top 85%"
+        },
+
+        y: 60,
+        opacity: 0,
+        duration: .8
+
+      }
+    );
+
+
+    /* ======================================================
+       3D PRODUCT TILT
+    ====================================================== */
+
+    function activateTilt() {
+
+      document
+        .querySelectorAll(".tilt-product")
+        .forEach(card => {
+
+          card.addEventListener(
+            "mousemove",
+            event => {
+
+              const rect =
+                card.getBoundingClientRect();
+
+
+              const x =
+                event.clientX -
+                rect.left;
+
+
+              const y =
+                event.clientY -
+                rect.top;
+
+
+              const rotateX =
+                (
+                  (y - rect.height / 2) /
+                  (rect.height / 2)
+                ) * -4;
+
+
+              const rotateY =
+                (
+                  (x - rect.width / 2) /
+                  (rect.width / 2)
+                ) * 5;
+
+
+              card.style.transform =
+                `
+                  rotateX(${rotateX}deg)
+                  rotateY(${rotateY}deg)
+                  translateZ(8px)
+                `;
+
+            }
+          );
+
+
+          card.addEventListener(
+            "mouseleave",
+            () => {
+
+              card.style.transform =
+                `
+                  rotateX(0deg)
+                  rotateY(0deg)
+                  translateZ(0)
+                `;
+
+            }
+          );
+
+        });
+
+    }
+
+
+    /* ======================================================
+       INITIALIZE
+    ====================================================== */
+
+    renderProducts();
+
+    updateCart();
+
+  </script>
+
+</body>
+</html>
